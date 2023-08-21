@@ -9,7 +9,7 @@ GROUP_URL = 'https://www.facebook.com/groups/FBGID'
 USERNAME = 'email@address'
 PASSWORD = 'password'
 TELEGRAM_TOKEN = "telgram_bot_token"
-TELEGRAM_CHANNEL = "-100ID" # if the channel ID is for example 1192292378 then you should use -1001192292378\
+TELEGRAM_CHANNEL = "-100ID" # if the channel ID is for example 1192292378 then you should use -1001192292378
 
 # Initialize webdriver
 service = Service(executable_path='/opt/homebrew/bin/chromedriver')
