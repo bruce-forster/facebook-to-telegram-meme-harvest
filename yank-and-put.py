@@ -36,8 +36,6 @@ for _ in range(10):  # Scroll 10 times (or as needed)
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(2)  # Allow content to load
 
-# Extract images
-img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
 # Extract main content images based on size
 img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
 
