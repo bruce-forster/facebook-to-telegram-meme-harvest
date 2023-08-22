@@ -38,7 +38,19 @@ for _ in range(10):  # Scroll 10 times (or as needed)
 
 # Extract images
 img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
-img_urls = [img.get_attribute('src') for img in img_elems]
+# Extract main content images based on size
+img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
+
+# Filter out small images, assuming that main content images are larger
+MIN_WIDTH = 100  # Adjust this based on your observations
+MIN_HEIGHT = 100  # Adjust this based on your observations
+
+img_urls = []
+for img in img_elems:
+    width = int(img.get_attribute('naturalWidth'))
+    height = int(img.get_attribute('naturalHeight'))
+    if width > MIN_WIDTH and height > MIN_HEIGHT:
+        img_urls.append(img.get_attribute('src'))
 
 # Close the browser
 browser.close()
