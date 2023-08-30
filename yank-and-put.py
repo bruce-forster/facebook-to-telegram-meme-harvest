@@ -10,6 +10,7 @@ USERNAME = 'email@address'
 PASSWORD = 'password'
 TELEGRAM_TOKEN = "telgram_bot_token"
 TELEGRAM_CHANNEL = "-100ID" # if the channel ID is for example 1192292378 then you should use -1001192292378
+POSTED_IMAGES_FILE = 'posted_images.txt'
 
 # Initialize webdriver
 service = Service(executable_path='/opt/homebrew/bin/chromedriver')
@@ -34,8 +35,10 @@ browser.get(GROUP_URL)
 time.sleep(5)
 for _ in range(10):  # Scroll 10 times (or as needed)
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)  # Allow content to load
+    time.sleep(1)  # Allow content to load
 
+# Extract images
+img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
 # Extract main content images based on size
 img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
 
@@ -43,15 +46,18 @@ img_elems = browser.find_elements(By.CSS_SELECTOR, 'img')
 MIN_WIDTH = 100  # Adjust this based on your observations
 MIN_HEIGHT = 100  # Adjust this based on your observations
 
-img_urls = []
-for img in img_elems:
-    width = int(img.get_attribute('naturalWidth'))
-    height = int(img.get_attribute('naturalHeight'))
-    if width > MIN_WIDTH and height > MIN_HEIGHT:
-        img_urls.append(img.get_attribute('src'))
+# Extract images
+img_urls = [
+    img.get_attribute('src')
+    for img in img_elems
+    if int(img.get_attribute('naturalWidth')) > MIN_WIDTH
+    and int(img.get_attribute('naturalHeight')) > MIN_HEIGHT
+    and "w3.org" not in img.get_attribute('src')
+]
 
 # Close the browser
 browser.close()
+
 
 def post_image_to_telegram(img_url):
     base_url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/"
@@ -59,13 +65,23 @@ def post_image_to_telegram(img_url):
     data = {
         "chat_id": TELEGRAM_CHANNEL,
         "photo": img_url,
-        "caption": "From Facebook Group"
+        "caption": "From FB"
     }
     response = requests.post(send_photo_url, data=data)
+    print(f"{data}")
     if response.status_code != 200:
         print(f"Failed to send image to Telegram. Error: {response.text}")
+    else:
+        with open(POSTED_IMAGES_FILE, 'a') as file:
+            file.write(img_url + '\n')
+
+# Read previously posted images
+with open(POSTED_IMAGES_FILE, 'a+') as file:
+    file.seek(0)
+    posted_images = file.readlines()
 
 # Post to Telegram
 for img_url in img_urls:
-    post_image_to_telegram(img_url)
-    time.sleep(5)  # Optional delay between posts
+    if img_url + '\n' not in posted_images:
+        post_image_to_telegram(img_url)
+        #time.sleep(5)  # Optional delay between posts
